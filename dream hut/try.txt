@@ -1,0 +1,170 @@
+            #include <GL/glut.h>
+            #include <cmath>
+            #include <string>
+
+            float riverOffset = 0.0f;
+            float cloudOffset = 0.0f;
+
+            void drawText(const char* text, float x, float y) {
+                glRasterPos2f(x, y);
+                for (const char* c = text; *c != '\0'; c++) {
+                    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+                }
+            }
+
+            // Function to draw the sun
+            void drawSun() {
+                glColor3f(1.0f, 1.0f, 0.0f); // Yellow
+                float x = 0.8f, y = 0.8f, radius = 0.1f;
+                int num_segments = 100;
+
+                glBegin(GL_TRIANGLE_FAN);
+                glVertex2f(x, y);
+                for (int i = 0; i <= num_segments; i++) {
+                    float theta = 2.0f * 3.1415926f * i / num_segments;
+                    float dx = radius * cosf(theta);
+                    float dy = radius * sinf(theta);
+                    glVertex2f(x + dx, y + dy);
+                }
+                glEnd();
+            }
+
+            // Function to draw a rectangle
+            void drawRectangle(float x, float y, float width, float height) {
+                glBegin(GL_POLYGON);
+                glVertex2f(x, y);
+                glVertex2f(x + width, y);
+                glVertex2f(x + width, y + height);
+                glVertex2f(x, y + height);
+                glEnd();
+            }
+
+            // Function to draw the roof
+            void drawRoof(float x, float y, float width, float height) {
+                glBegin(GL_TRIANGLES);
+                glVertex2f(x, y);
+                glVertex2f(x + width / 2.0f, y + height);
+                glVertex2f(x + width, y);
+                glEnd();
+            }
+
+            // Function to draw the chimney
+            void drawChimney(float x, float y, float width, float height) {
+                glBegin(GL_POLYGON);
+                glVertex2f(x, y);
+                glVertex2f(x + width, y);
+                glVertex2f(x + width, y + height);
+                glVertex2f(x, y + height);
+                glEnd();
+            }
+
+            // Function to draw clouds as circles
+            void drawCloud(float x, float y, float radius) {
+                int num_segments = 100;
+                glColor3f(0.8f, 0.8f, 0.8f); // Light gray color
+
+                glBegin(GL_TRIANGLE_FAN);
+                glVertex2f(x, y);
+                for (int i = 0; i <= num_segments; i++) {
+                    float theta = 2.0f * 3.1415926f * i / num_segments;
+                    float dx = radius * cosf(theta);
+                    float dy = radius * sinf(theta);
+                    glVertex2f(x + dx, y + dy);
+                }
+                glEnd();
+            }
+
+            // Function to draw the river
+            void drawRiver() {
+                glColor3f(0.0f, 0.5f, 1.0f); // Blue color
+                glBegin(GL_POLYGON);
+                glVertex2f(-1.0f, -0.3f);
+                glVertex2f(-1.0f, -0.6f);
+                glVertex2f(1.0f, -0.6f);
+                glVertex2f(1.0f, -0.3f);
+                glEnd();
+            }
+
+                // Display callback
+                void display() {
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                // Draw sun
+                drawSun();
+
+                // Draw shop
+                glColor3f(0.0f, 1.0f, 0.0f); // Green
+                drawRectangle(-0.8f, 0.0f, 0.2f, 0.3f); // Shop body
+                glColor3f(0.0f, 0.0f, 0.0f); // Black for text
+                drawText("SHOP", -0.75f, 0.15f); // Shop label
+
+                // Draw house
+                glColor3f(1.0f, 0.0f, 0.0f); // Red color
+                drawRectangle(-0.3f, 0.0f, 0.4f, 0.4f); // Main house body
+                glColor3f(0.5f, 0.3f, 0.2f); // Brown for door
+                drawRectangle(-0.05f, 0.0f, 0.1f, 0.2f); // Door
+                glColor3f(0.7f, 0.9f, 1.0f); // Light blue for window
+                drawRectangle(-0.2f, 0.2f, 0.1f, 0.1f); // Window
+                glColor3f(0.5f, 0.0f, 0.0f); // Dark red for roof
+                drawRoof(-0.35f, 0.4f, 0.5f, 0.2f); // Roof
+                glColor3f(0.4f, 0.4f, 0.4f); // Gray for chimney
+                drawChimney(-0.2f, 0.5f, 0.05f, 0.1f); // Chimney
+
+                // Draw garage
+                glColor3f(0.5f, 0.5f, 0.5f); // Gray
+                drawRectangle(0.1f, 0.0f, 0.2f, 0.2f); // Garage body
+
+                // Draw moving river
+                glPushMatrix();
+                glTranslatef(riverOffset, 0.0f, 0.0f);
+                drawRiver();
+                glPopMatrix();
+
+                // Draw moving clouds
+                glPushMatrix();
+                glTranslatef(cloudOffset, 0.0f, 0.0f);
+                drawCloud(-0.6f, 0.7f, 0.1f);
+                drawCloud(-0.4f, 0.8f, 0.1f);
+                drawCloud(0.3f, 0.7f, 0.1f);
+                glPopMatrix();
+
+                glFlush();
+            }
+
+        // Update the scene (moving river and clouds)
+        void update(int value) {
+            // Animate river by changing offset
+            riverOffset -= 0.005f;
+            if (riverOffset < -1.0f) {
+                riverOffset = 0.0f;
+            }
+
+            // Animate clouds by changing offset
+            cloudOffset += 0.002f;
+            if (cloudOffset > 1.5f) {
+                cloudOffset = -1.0f;
+            }
+
+            glutPostRedisplay(); // Request a redraw
+            glutTimerFunc(16, update, 0); // Call update again after 16 ms (~60 FPS)
+        }
+
+            // Initialization function
+            void init() {
+                glClearColor(1.0f, 1.0f, 1.0f, 1.0f); // White background
+                glMatrixMode(GL_PROJECTION);
+                glLoadIdentity();
+                gluOrtho2D(-1.0, 1.0, -1.0, 1.0);
+            }
+
+        // Main function
+            int main(int argc, char** argv) {
+                glutInit(&argc, argv);
+                glutCreateWindow("Dynamic OpenGL Scene");
+                glutInitWindowSize(900, 900);
+                init();
+                glutDisplayFunc(display);
+                glutTimerFunc(16, update, 0); // Start the update loop
+                glutMainLoop();
+                return 0;
+            }
