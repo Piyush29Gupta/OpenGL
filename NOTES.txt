@@ -1,0 +1,13 @@
+glutInitWindowSize - for window size 
+
+glutCreateWindow - window title - top on window
+
+init() - function - Initialization 
+
+glClearColor - for change the color of background - glClearColor(1f,1f,1f,1f) - white 
+
+gluOrtho2D - use in to x and y cordinate limit - gluOrtho2D(-1.0 -x,1.0x,-1.0-y,1.0y);
+
+GL_CLEAR(GL_COLOR_BUFFER_BIT); - for empty the buffers
+
+glColor3f(1.0f,1.0f,0.0f); - for color 
